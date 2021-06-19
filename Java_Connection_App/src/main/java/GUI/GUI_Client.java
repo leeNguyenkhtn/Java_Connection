@@ -1,0 +1,649 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package GUI;
+
+import TCPClient.TCPClient_PrivateChat;
+import cfg.Const;
+import cfg.ReadWriteConfigureFile;
+import java.awt.Color;
+import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.util.Pair;
+import javax.swing.DefaultListModel;
+import javax.swing.JTextArea;
+
+/**
+ *
+ * @author ACER
+ */
+public class GUI_Client extends javax.swing.JFrame implements PropertyChangeListener {
+
+    /**
+     * Creates new form GUI_Client
+     */
+    TCPClient_PrivateChat client;
+    String name = null;
+    ReadWriteConfigureFile cfg;
+    List<String> onlineUser = new ArrayList<>();
+    DefaultListModel<String> model = new DefaultListModel<>();
+    boolean isNewLine = true;
+
+    public GUI_Client() {
+        initComponents();
+        cfg = new ReadWriteConfigureFile();
+        cfg.loadConfigure();
+        getCfg();
+    }
+
+    private void getCfg() {
+        Pair<String, Integer> pairPrivateChat = cfg.getServerConfigure(ReadWriteConfigureFile.serverPrivateChat);
+        tf_serverPrivateChatHost.setText(pairPrivateChat.getKey());
+        tf_portPrivateChat.setText(pairPrivateChat.getValue().toString());
+        Pair<String, Integer> pairGroupChat = cfg.getServerConfigure(ReadWriteConfigureFile.serverGroupChat);
+        tf_serverGroupChatHost.setText(pairGroupChat.getKey());
+        tf_portGroupChat.setText(pairGroupChat.getValue().toString());
+        Pair<String, Integer> pairSendFile = cfg.getServerConfigure(ReadWriteConfigureFile.serverSendFile);
+        tf_serverSendFileHost.setText(pairSendFile.getKey());
+        tf_portSendFile.setText(pairSendFile.getValue().toString());
+    }
+
+    private void setCfg(String privateChatHost, String groupChatHost, String sendFileHost, int portPrivate, int portGroup, int portSend) {
+        if (privateChatHost != null && groupChatHost != null && sendFileHost != null && portPrivate >= 0 && portGroup >= 0 && portSend >= 0) {
+            cfg.adjustServerConfigure(ReadWriteConfigureFile.serverPrivateChat, privateChatHost, portPrivate);
+            cfg.adjustServerConfigure(ReadWriteConfigureFile.serverGroupChat, groupChatHost, portGroup);
+            cfg.adjustServerConfigure(ReadWriteConfigureFile.serverSendFile, sendFileHost, portSend);
+            cfg.loadConfigure();
+        }
+    }
+
+    void addNewUser(String name) {
+        onlineUser.add(name);
+        model.addElement(name);
+        System.out.println(name);
+        JTextArea newChatContent = new JTextArea();
+        newChatContent.setEditable(false);
+        tp_ChatContent.addTab(name, newChatContent);
+        newChatContent.setVisible(true);
+
+    }
+
+    void removeUser(String name) {
+        onlineUser.remove(name);
+        model.removeElement(name);
+    }
+
+    void listOnLineUser(List<String> list) {
+        for (String user : list) {
+            onlineUser.add(user);
+            model.addElement(user);
+            System.out.println(user);
+            JTextArea newChatContent = new JTextArea();
+            newChatContent.setEditable(false);
+            tp_ChatContent.addTab(user, newChatContent);
+            newChatContent.setVisible(true);
+        }
+    }
+
+    void receiveMessage(String sender, String msg) {
+        JTextArea textArea = (JTextArea) tp_ChatContent.getSelectedComponent();
+        textArea.append("[" + sender + "] [" + Const.CurrentTime() + "] : " + msg + "\n");
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        System.out.println("propertyChange");
+        if (evt.getOldValue().equals("add")) {
+            System.out.println("add");
+            addNewUser((String) evt.getNewValue());
+        } else if (evt.getOldValue().equals("remove")) {
+            System.out.println("remove");
+            removeUser((String) evt.getNewValue());
+        } else if (evt.getOldValue().equals("list")) {
+            System.out.println("list");
+            listOnLineUser((List<String>) evt.getNewValue());
+        } else if (evt.getPropertyName().equals("message")) {
+            System.out.println("message");
+            String sender = (String) evt.getOldValue();
+            String message = (String) evt.getNewValue();
+            receiveMessage(sender, message);
+        } else if (evt.getOldValue().equals("removeAll")) {
+            model.removeAllElements();
+            tp_ChatContent.removeAll();
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        javax.swing.ButtonGroup btnGroup_Enter = new javax.swing.ButtonGroup();
+        tp_chatApp = new javax.swing.JTabbedPane();
+        p_configure = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        tf_serverPrivateChatHost = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        tf_portPrivateChat = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        tf_serverGroupChatHost = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        tf_portGroupChat = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        tf_serverSendFileHost = new javax.swing.JTextField();
+        jLabel9 = new javax.swing.JLabel();
+        tf_portSendFile = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
+        radiobtn_newLine = new javax.swing.JRadioButton();
+        radiobtn_sendMessage = new javax.swing.JRadioButton();
+        btn_submit = new javax.swing.JButton();
+        togglebtn_Connect = new javax.swing.JToggleButton();
+        jLabel12 = new javax.swing.JLabel();
+        tf_chatName = new javax.swing.JTextField();
+        btn_Register = new javax.swing.JButton();
+        p_chat = new javax.swing.JPanel();
+        btn_send = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        ta_chatBox = new javax.swing.JTextArea();
+        btn_attach = new javax.swing.JButton();
+        btn_Emoji = new javax.swing.JButton();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 32767));
+        tp_ChatContent = new javax.swing.JTabbedPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        list_User = new javax.swing.JList<>();
+        jLabel11 = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel1.setText("Server Private Chat");
+
+        jLabel2.setText("Host");
+
+        jLabel3.setText("Port");
+
+        jLabel4.setText("Port");
+
+        jLabel5.setText("Server Group Chat");
+
+        jLabel6.setText("Host");
+
+        jLabel7.setText("Port");
+
+        jLabel8.setText("Server Send File");
+
+        jLabel9.setText("Host");
+
+        jLabel10.setText("Customize Enter Key");
+
+        btnGroup_Enter.add(radiobtn_newLine);
+        radiobtn_newLine.setText("Enter is new line");
+        radiobtn_newLine.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radiobtn_newLineActionPerformed(evt);
+            }
+        });
+
+        btnGroup_Enter.add(radiobtn_sendMessage);
+        radiobtn_sendMessage.setText("Enter is send message");
+        radiobtn_sendMessage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radiobtn_sendMessageActionPerformed(evt);
+            }
+        });
+
+        btn_submit.setText("Submit");
+        btn_submit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_submitActionPerformed(evt);
+            }
+        });
+
+        togglebtn_Connect.setText("Connect");
+        togglebtn_Connect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                togglebtn_ConnectActionPerformed(evt);
+            }
+        });
+
+        jLabel12.setText("Chat name");
+
+        btn_Register.setText("Register");
+        btn_Register.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_RegisterActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout p_configureLayout = new javax.swing.GroupLayout(p_configure);
+        p_configure.setLayout(p_configureLayout);
+        p_configureLayout.setHorizontalGroup(
+            p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(p_configureLayout.createSequentialGroup()
+                .addGroup(p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(p_configureLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(togglebtn_Connect, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, p_configureLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(p_configureLayout.createSequentialGroup()
+                                .addGroup(p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(p_configureLayout.createSequentialGroup()
+                                        .addGroup(p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 123, Short.MAX_VALUE)
+                                            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addGap(52, 52, 52))
+                                    .addGroup(p_configureLayout.createSequentialGroup()
+                                        .addComponent(jLabel1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addGroup(p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(p_configureLayout.createSequentialGroup()
+                                        .addComponent(jLabel2)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(tf_serverPrivateChatHost, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jLabel3)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(tf_portPrivateChat, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, p_configureLayout.createSequentialGroup()
+                                            .addComponent(jLabel6)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                            .addComponent(tf_serverGroupChatHost, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGap(18, 18, 18)
+                                            .addComponent(jLabel4)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                            .addComponent(tf_portGroupChat, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, p_configureLayout.createSequentialGroup()
+                                            .addComponent(jLabel9)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                            .addComponent(tf_serverSendFileHost, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGap(18, 18, 18)
+                                            .addComponent(jLabel7)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                            .addComponent(tf_portSendFile, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(radiobtn_newLine)
+                                        .addComponent(radiobtn_sendMessage))
+                                    .addGroup(p_configureLayout.createSequentialGroup()
+                                        .addGap(250, 250, 250)
+                                        .addComponent(btn_submit))))
+                            .addGroup(p_configureLayout.createSequentialGroup()
+                                .addGroup(p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(btn_Register)
+                                    .addGroup(p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel10)
+                                        .addGroup(p_configureLayout.createSequentialGroup()
+                                            .addComponent(jLabel12)
+                                            .addGap(18, 18, 18)
+                                            .addComponent(tf_chatName, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGap(0, 0, Short.MAX_VALUE)))))
+                .addContainerGap(104, Short.MAX_VALUE))
+        );
+        p_configureLayout.setVerticalGroup(
+            p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(p_configureLayout.createSequentialGroup()
+                .addGap(31, 31, 31)
+                .addGroup(p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2)
+                    .addComponent(tf_serverPrivateChatHost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tf_portPrivateChat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addGap(27, 27, 27)
+                .addGroup(p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel6)
+                    .addComponent(tf_serverGroupChatHost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tf_portGroupChat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
+                .addGap(27, 27, 27)
+                .addGroup(p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(jLabel9)
+                    .addComponent(tf_serverSendFileHost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tf_portSendFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7))
+                .addGap(26, 26, 26)
+                .addComponent(btn_submit)
+                .addGap(9, 9, 9)
+                .addGroup(p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel10)
+                    .addComponent(radiobtn_newLine))
+                .addGap(18, 18, 18)
+                .addComponent(radiobtn_sendMessage)
+                .addGap(34, 34, 34)
+                .addGroup(p_configureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel12)
+                    .addComponent(tf_chatName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(btn_Register)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addComponent(togglebtn_Connect, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(47, 47, 47))
+        );
+
+        tp_chatApp.addTab("Configure  ", p_configure);
+
+        btn_send.setIcon(new javax.swing.ImageIcon("C:\\Users\\ACER\\Downloads\\email-send-icon.png")); // NOI18N
+        btn_send.setText("Send");
+        btn_send.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_sendActionPerformed(evt);
+            }
+        });
+
+        ta_chatBox.setColumns(1);
+        ta_chatBox.setFont(new java.awt.Font("Monospaced", 0, 18)); // NOI18N
+        ta_chatBox.setLineWrap(true);
+        ta_chatBox.setRows(4);
+        ta_chatBox.setToolTipText("");
+        ta_chatBox.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        ta_chatBox.setNextFocusableComponent(btn_Emoji);
+        ta_chatBox.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                ta_chatBoxKeyPressed(evt);
+            }
+        });
+        jScrollPane1.setViewportView(ta_chatBox);
+
+        btn_attach.setIcon(new javax.swing.ImageIcon("C:\\Users\\ACER\\Downloads\\attachment-icon.png")); // NOI18N
+        btn_attach.setText("Attach");
+        btn_attach.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_attachActionPerformed(evt);
+            }
+        });
+
+        btn_Emoji.setIcon(new javax.swing.ImageIcon("C:\\Users\\ACER\\Downloads\\Emoji-Glad-icon.png")); // NOI18N
+        btn_Emoji.setText("Emoji");
+
+        list_User.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        list_User.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        list_User.setModel(model
+        );
+        list_User.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        list_User.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                list_UserMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(list_User);
+
+        jLabel11.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel11.setText("List User ");
+
+        javax.swing.GroupLayout p_chatLayout = new javax.swing.GroupLayout(p_chat);
+        p_chat.setLayout(p_chatLayout);
+        p_chatLayout.setHorizontalGroup(
+            p_chatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(p_chatLayout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addGroup(p_chatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(p_chatLayout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 334, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(p_chatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btn_Emoji, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btn_attach, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addComponent(btn_send, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(p_chatLayout.createSequentialGroup()
+                        .addComponent(filler1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(p_chatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel11))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(tp_ChatContent, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(26, Short.MAX_VALUE))
+        );
+        p_chatLayout.setVerticalGroup(
+            p_chatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(p_chatLayout.createSequentialGroup()
+                .addGap(37, 37, 37)
+                .addGroup(p_chatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(p_chatLayout.createSequentialGroup()
+                        .addGap(284, 284, 284)
+                        .addComponent(filler1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(tp_ChatContent, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, p_chatLayout.createSequentialGroup()
+                        .addComponent(jLabel11)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(32, 32, 32)
+                .addGroup(p_chatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(p_chatLayout.createSequentialGroup()
+                        .addGroup(p_chatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btn_Emoji)
+                            .addComponent(btn_send))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btn_attach)))
+                .addGap(12, 12, 12))
+        );
+
+        tp_chatApp.addTab("  Private Chat  ", p_chat);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 620, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 527, Short.MAX_VALUE)
+        );
+
+        tp_chatApp.addTab("Chat Group", jPanel4);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(tp_chatApp, javax.swing.GroupLayout.PREFERRED_SIZE, 625, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(tp_chatApp, javax.swing.GroupLayout.PREFERRED_SIZE, 557, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btn_attachActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_attachActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btn_attachActionPerformed
+
+    private void btn_sendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_sendActionPerformed
+        // TODO add your handling code here:
+        if (!ta_chatBox.getText().isEmpty()) {
+            String msg = ta_chatBox.getText();
+            int indexOfReceiver = tp_ChatContent.getSelectedIndex();
+            String receiver = tp_ChatContent.getTitleAt(indexOfReceiver);
+            client.sendMessage(receiver, msg);
+            JTextArea textArea = (JTextArea) tp_ChatContent.getSelectedComponent();
+            textArea.append("[" + name + "] [" + Const.CurrentTime() + "] : " + msg + "\n");
+
+            ta_chatBox.setText("");
+        }
+    }//GEN-LAST:event_btn_sendActionPerformed
+
+    private void radiobtn_newLineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radiobtn_newLineActionPerformed
+        // TODO add your handling code here:
+        isNewLine = true;
+    }//GEN-LAST:event_radiobtn_newLineActionPerformed
+
+    private void btn_RegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_RegisterActionPerformed
+        // TODO add your handling code here:
+        String name = tf_chatName.getText();
+        if (name != null) {
+            this.name = name;
+        }
+    }//GEN-LAST:event_btn_RegisterActionPerformed
+
+    private void ta_chatBoxKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ta_chatBoxKeyPressed
+        // TODO add your handling code here:
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            if (!isNewLine) {
+                if (!ta_chatBox.getText().isEmpty()) {
+                    String msg = ta_chatBox.getText();
+                    int indexOfReceiver = tp_ChatContent.getSelectedIndex();
+                    String receiver = tp_ChatContent.getTitleAt(indexOfReceiver);
+                    client.sendMessage(receiver, msg);
+                    JTextArea textArea = (JTextArea) tp_ChatContent.getSelectedComponent();
+                    textArea.append("[" + name + "] [" + Const.CurrentTime() + "] : " + msg + "\n");
+
+                    ta_chatBox.setText("");
+                }
+            }
+        }
+    }//GEN-LAST:event_ta_chatBoxKeyPressed
+
+    private void list_UserMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_list_UserMouseClicked
+        // TODO add your handling code here:
+        try {
+            if (list_User.getSelectedIndex() >= 0) {
+                String title = list_User.getSelectedValue();
+                int indexOfChatContent = tp_ChatContent.indexOfTab(title);
+                tp_ChatContent.setSelectedIndex(indexOfChatContent);
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+    }//GEN-LAST:event_list_UserMouseClicked
+
+    private void togglebtn_ConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_togglebtn_ConnectActionPerformed
+        try {
+            // TODO add your handling code here:
+            if (name != null) {
+                if (togglebtn_Connect.isSelected()) {
+                    togglebtn_Connect.setText("Disconnect");
+                    togglebtn_Connect.setBackground(Color.RED);
+                    Pair<String, Integer> pair = cfg.getServerConfigure(ReadWriteConfigureFile.serverPrivateChat);
+                    Socket socket = new Socket(pair.getKey(), pair.getValue());
+                    client = new TCPClient_PrivateChat(name, socket);
+                    Thread thread = new Thread(() -> {
+                        client.start();
+                        client.addPropertyChangeListener(this);
+                    });
+                    thread.start();
+
+                } else {
+                    togglebtn_Connect.setText("Connect");
+                    togglebtn_Connect.setBackground(null);
+                    client.stop();
+                }
+
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(GUI_Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_togglebtn_ConnectActionPerformed
+
+    private void btn_submitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_submitActionPerformed
+        // TODO add your handling code here:
+        setCfg(tf_serverPrivateChatHost.getText(), tf_serverGroupChatHost.getText(), tf_serverSendFileHost.getText(),
+                Integer.parseInt(tf_portPrivateChat.getText()), Integer.parseInt(tf_portGroupChat.getText()), Integer.parseInt(tf_portSendFile.getText()));
+    }//GEN-LAST:event_btn_submitActionPerformed
+
+    private void radiobtn_sendMessageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radiobtn_sendMessageActionPerformed
+        // TODO add your handling code here:
+        isNewLine = false;
+    }//GEN-LAST:event_radiobtn_sendMessageActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(GUI_Client.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(GUI_Client.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(GUI_Client.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(GUI_Client.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new GUI_Client().setVisible(true);
+            }
+        });
+    }
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btn_Emoji;
+    private javax.swing.JButton btn_Register;
+    private javax.swing.JButton btn_attach;
+    private javax.swing.JButton btn_send;
+    private javax.swing.JButton btn_submit;
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JList<String> list_User;
+    private javax.swing.JPanel p_chat;
+    private javax.swing.JPanel p_configure;
+    private javax.swing.JRadioButton radiobtn_newLine;
+    private javax.swing.JRadioButton radiobtn_sendMessage;
+    private javax.swing.JTextArea ta_chatBox;
+    private javax.swing.JTextField tf_chatName;
+    private javax.swing.JTextField tf_portGroupChat;
+    private javax.swing.JTextField tf_portPrivateChat;
+    private javax.swing.JTextField tf_portSendFile;
+    private javax.swing.JTextField tf_serverGroupChatHost;
+    private javax.swing.JTextField tf_serverPrivateChatHost;
+    private javax.swing.JTextField tf_serverSendFileHost;
+    private javax.swing.JToggleButton togglebtn_Connect;
+    private javax.swing.JTabbedPane tp_ChatContent;
+    private javax.swing.JTabbedPane tp_chatApp;
+    // End of variables declaration//GEN-END:variables
+
+}
